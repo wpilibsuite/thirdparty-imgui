@@ -1,0 +1,282 @@
+import java.nio.file.Files
+import java.nio.file.Paths
+import org.gradle.internal.os.OperatingSystem
+
+plugins {
+    id 'c'
+    id 'cpp'
+    id 'visual-studio'
+    id 'edu.wpi.first.NativeUtils' version '2020.1.0'
+}
+
+if (OperatingSystem.current().isMacOsX()) {
+    apply plugin: 'objective-c'
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext.licenseFile = file("$rootDir/LICENSE.txt")
+
+apply from: 'config.gradle'
+
+def outputsFolder = file("$buildDir/allOutputs")
+
+task copyAllOutputs(type: Copy) {
+    destinationDir outputsFolder
+}
+
+build.dependsOn copyAllOutputs
+
+ext.addTaskToCopyAllOutputs = { task ->
+    copyAllOutputs.dependsOn task
+    copyAllOutputs.inputs.file task.archivePath
+    copyAllOutputs.from task.archivePath
+}
+
+task gl3wGenerateTask(type:Exec) {
+    def buildDirectory = Paths.get(projectDir.canonicalPath).resolve('build').resolve('gl3w')
+    if (!Files.exists(buildDirectory)) {
+        Files.createDirectories(buildDirectory)
+    }
+    workingDir buildDirectory.toString()
+    commandLine 'python', '../../gl3w/gl3w_gen.py'
+}
+/*
+    if (!buildType.contains("Shared")) {
+        if (project.platform.startsWith('windows')) {
+            project.tasks.create('nativeLibLinks' + buildType, Exec) {
+                dependsOn 'make' + buildType
+                workingDir buildDirectory.resolve("lib").resolve(buildTypeFolder).toString()
+                executable 'lib'
+                def inputFiles = ["imgui_part", "gl3w", "glfw3"]
+                def setArgs = ["/OUT:imgui.lib"]
+                inputFiles.each {
+                    def inFile = it
+                    if (buildTypeFolder == 'Debug') {
+                        inFile = inFile + 'd.lib'
+                    } else {
+                        inFile = inFile + '.lib'
+                    }
+                    setArgs << inFile
+                }
+                args = setArgs
+
+                inputs.file buildDirectory.resolve("lib").resolve(buildTypeFolder).resolve("imgui_part.lib").toFile()
+                outputs.file buildDirectory.resolve("lib").resolve(buildTypeFolder).resolve("imgui.lib").toFile()
+            }
+        } else if (project.platform.startsWith('osx')) {
+            project.tasks.create('nativeLibLinks' + buildType, Exec) {
+                dependsOn 'make' + buildType
+                executable 'libtool'
+                workingDir buildDirectory.resolve("lib").toString()
+                def libDirectory = buildDirectory.resolve("lib").toFile()
+                args '-static'
+                args '-o'
+                args "libimgui.a"
+                doFirst {
+                    libDirectory.eachFile() {
+                        if (!it.name.endsWith('.a') || it.name == "libimgui.a".toString()) {
+                            return
+                        }
+                        args it.absolutePath
+                    }
+                }
+                inputs.file buildDirectory.resolve("lib").resolve("libimgui_part.a").toFile()
+                outputs.file buildDirectory.resolve("lib").resolve("libimgui.a").toFile()
+            }
+        } else {
+            project.tasks.create('nativeLibLinks' + buildType, Exec) {
+                dependsOn 'make' + buildType
+                workingDir buildDirectory.resolve("lib").toString()
+                executable 'ar'
+                args = ['-M']
+                def inputFiles = ["libimgui_part", "libgl3w", "libglfw3"]
+
+                def inputString = "create libimgui.a\n"
+                inputFiles.each {
+                    def inFile = 'addlib ' + it
+                    if (buildTypeFolder == 'Debug') {
+                        inFile = inFile + 'd.a\n'
+                    } else {
+                        inFile = inFile + '.a\n'
+                    }
+                    inputString += inFile
+                }
+
+                inputString += "save\nend\n"
+                standardInput = new ByteArrayInputStream(inputString.getBytes())
+                inputs.file buildDirectory.resolve("lib").resolve("libimgui_part.a").toFile()
+                outputs.file buildDirectory.resolve("lib").resolve("libimgui.a").toFile()
+            }
+        }
+    }
+*/
+model {
+    components {
+        imgui(NativeLibrarySpec) {
+            sources {
+                cpp {
+                    source {
+                        srcDirs 'imgui'
+                        include '*.cpp', 'examples/imgui_impl_glfw.cpp', 'examples/imgui_impl_opengl3.cpp'
+                    }
+                    exportedHeaders {
+                        srcDirs 'imgui'
+                        include '*.h', 'examples/imgui_impl_glfw.h', 'examples/imgui_impl_opengl3.h'
+                    }
+                }
+            }
+            binaries.all {
+                if (toolChain in VisualCpp) {
+                    cppCompiler.args '-D_UNICODE', '-DUNICODE', '-DWIN32', '-D_WIN32', '-DSTRICT', '-DWIN32_LEAN_AND_MEAN', '-D_HAS_EXCEPTIONS=1'
+                } else {
+                    cppCompiler.args '-Wshadow', '-fexceptions', '-Wno-missing-field-initializers'
+                }
+                lib library: 'gl3w', linkage: 'static'
+                lib library: 'glfw3'
+            }
+            //binaries.withType(SharedLibraryBinarySpec) {
+            //    buildable = false
+            //}
+            appendDebugPathToBinaries(binaries)
+        }
+        gl3w(NativeLibrarySpec) {
+            sources {
+                c {
+                    source {
+                        srcDirs 'build/gl3w/src', 'gl3w-empty'
+                        include '*.c'
+                    }
+                    exportedHeaders {
+                        srcDirs 'build/gl3w/include'
+                        include '**/*.h'
+                    }
+                }
+            }
+            binaries.all {
+                if (toolChain in VisualCpp) {
+                    cCompiler.args '-D_UNICODE', '-DUNICODE', '-DWIN32', '-D_WIN32', '-DSTRICT', '-DWIN32_LEAN_AND_MEAN', '-D_HAS_EXCEPTIONS=1'
+                } else {
+                    cCompiler.args '-Wshadow', '-fexceptions', '-Wno-missing-field-initializers'
+                }
+                it.tasks.withType(CCompile) {
+                    dependsOn gl3wGenerateTask
+                }
+            }
+            //binaries.withType(SharedLibraryBinarySpec) {
+            //    buildable = false
+            //}
+            appendDebugPathToBinaries(binaries)
+        }
+        glfw3(NativeLibrarySpec) {
+            sources {
+                c {
+                    source {
+                        srcDirs 'glfw/src'
+                        include 'context.c', 'init.c', 'input.c', 'monitor.c', 'vulkan.c', 'window.c', 'egl_context.c', 'osmesa_context.c'
+                    }
+                    exportedHeaders {
+                        srcDirs 'glfw/include'
+                        include '**/*.h'
+                    }
+                }
+            }
+            binaries.all {
+                if (toolChain in VisualCpp) {
+                    cCompiler.args '-D_UNICODE', '-DUNICODE', '-DWIN32', '-D_WIN32', '-DSTRICT', '-DWIN32_LEAN_AND_MEAN', '-D_HAS_EXCEPTIONS=1'
+                } else {
+                    cCompiler.args '-Wshadow', '-fexceptions', '-Wno-missing-field-initializers'
+                }
+                if (it in SharedLibraryBinarySpec) {
+                    it.cppCompiler.define '_GLFW_BUILD_DLL'
+                    if (!it.targetPlatform.operatingSystem.isWindows()) {
+                        it.linker.args << '-fvisibility=hidden'
+                    }
+                } else {
+                    it.cppCompiler.define '_GLFW_VULKAN_STATIC'
+                    it.linker.args << '-lvulkan'
+                }
+                if (it.targetPlatform.operatingSystem.isWindows()) {
+                    it.cCompiler.define '_GLFW_WIN32'
+                    it.sources {
+                        glfw3WindowsC(CSourceSet) {
+                            source {
+                                srcDirs 'glfw/src'
+                                includes = [
+                                    'win32_init.c',
+                                    'win32_joystick.c',
+                                    'win32_monitor.c',
+                                    'win32_time.c',
+                                    'win32_thread.c',
+                                    'win32_window.c',
+                                    'wgl_context.c',
+                                ]
+                            }
+                        }
+                    }
+                } else if (it.targetPlatform.operatingSystem.isMacOsX()) {
+                    if (it in SharedLibraryBinarySpec) {
+                        it.cCompiler.args << '-fno-common'
+                    }
+                    it.cCompiler.define '_GLFW_COCOA'
+                    it.linker.args << '-framework' << 'Cocoa' << '-framework' << 'IOKit' << '-framework' << 'CoreFoundation' << '-framework' << 'CoreVideo'
+                    it.sources {
+                        glfw3MacC(CSourceSet) {
+                            source {
+                                srcDirs 'glfw/src'
+                                includes = [
+                                    'cocoa_time.c',
+                                    'posix_thread.c',
+                                ]
+                            }
+                        }
+                        glfw3MacObjC(ObjectiveCSourceSet) {
+                            source {
+                                srcDirs 'glfw/src'
+                                includes = [
+                                    'cocoa_init.m',
+                                    'cocoa_joystick.m',
+                                    'cocoa_monitor.m',
+                                    'cocoa_window.m',
+                                    'nsgl_context.m',
+                                ]
+                            }
+                        }
+                    }
+                } else {
+                    it.cCompiler.define '_GLFW_X11'
+                    it.linker.args << '-lrt'
+                    it.sources {
+                        glfw3LinuxC(CSourceSet) {
+                            source {
+                                srcDirs 'glfw/src'
+                                includes = [
+                                    'x11_init.c',
+                                    'x11_monitor.c',
+                                    'x11_window.c',
+                                    'xkb_unicode.c',
+                                    'posix_time.c',
+                                    'posix_thread.c',
+                                    'glx_context.c',
+                                    'linux_joystick.c',
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+            //binaries.withType(SharedLibraryBinarySpec) {
+            //    buildable = false
+            //}
+            appendDebugPathToBinaries(binaries)
+        }
+    }
+}
+
+apply from: 'publish.gradle'
+
+wrapper {
+    gradleVersion = '5.4.1'
+}

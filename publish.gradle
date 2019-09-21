@@ -1,0 +1,127 @@
+apply plugin: 'maven-publish'
+
+publishing {
+    repositories {
+        maven {
+            url "${System.getProperty('user.home')}/releases/maven/development"
+        }
+        maven {
+            url "${System.getProperty('user.home')}/releases/maven/release"
+        }
+    }
+}
+
+def releaseNumber = 1
+
+def pubVersion = "1.72b-$releaseNumber"
+
+def baseArtifactId = 'imgui'
+def artifactGroupId = 'edu.wpi.first.thirdparty.frc2020'
+def zipBaseName = '_GROUP_edu_wpi_first_thirdparty_frc2020_ID_imgui_CLS'
+
+def outputsFolder = file("$project.buildDir/outputs")
+
+def versionFile = file("$outputsFolder/version.txt")
+
+task outputVersions() {
+    description = 'Prints the versions of this to a file for use by the downstream packaging project'
+    group = 'Build'
+    outputs.files(versionFile)
+
+    doFirst {
+        buildDir.mkdir()
+        outputsFolder.mkdir()
+    }
+
+    doLast {
+        versionFile.write pubVersion
+    }
+}
+
+build.dependsOn outputVersions
+copyAllOutputs.dependsOn outputVersions
+copyAllOutputs.inputs.file versionFile
+copyAllOutputs.from versionFile
+
+task cppSourcesZip(type: Zip) {
+    destinationDir = outputsFolder
+    baseName = zipBaseName
+    classifier = "sources"
+
+    from(licenseFile) {
+        into '/'
+    }
+
+    from('imgui') {
+        include '*.cpp'
+        into '/imgui/'
+    }
+
+    from('imgui/examples') {
+        include 'imgui_impl_glfw.cpp', 'imgui_impl_opengl3.cpp'
+        into '/imgui/'
+    }
+
+    from('build/gl3w/src') {
+        include '*.c', '*.h'
+        into '/gl3w/'
+    }
+
+    from('glfw/src') {
+        include '*.c', '*.m', '*.h'
+        into '/glfw/'
+    }
+}
+
+task cppHeadersZip(type: Zip) {
+    destinationDir = outputsFolder
+    baseName = zipBaseName
+    classifier = "headers"
+
+    from(licenseFile) {
+        into '/'
+    }
+
+    from('imgui') {
+        include '*.h'
+        into '/'
+    }
+
+    from('imgui/examples') {
+        include 'imgui_impl_glfw.h', 'imgui_impl_opengl3.h'
+        into '/'
+    }
+
+    from('build/gl3w/include') {
+        into '/'
+    }
+
+    from('glfw/include') {
+        into '/'
+    }
+}
+
+build.dependsOn cppHeadersZip
+build.dependsOn cppSourcesZip
+
+addTaskToCopyAllOutputs(cppHeadersZip)
+addTaskToCopyAllOutputs(cppSourcesZip)
+
+model {
+    publishing {
+        def gTaskList = createComponentZipTasks($.components, ['imgui'], zipBaseName, Zip, project, includeStandardZipFormat)
+        publications {
+            cpp(MavenPublication) {
+                gTaskList.each {
+                    artifact it
+                }
+                artifact cppHeadersZip
+                artifact cppSourcesZip
+
+                artifactId = baseArtifactId
+                groupId artifactGroupId
+                version pubVersion
+            }
+        }
+    }
+}
