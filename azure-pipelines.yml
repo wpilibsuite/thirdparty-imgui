@@ -11,96 +11,12 @@ variables:
 
 resources:
   containers:
-  - container: wpilib2020
-    image: wpilib/roborio-cross-ubuntu:2020-18.04
-  - container: raspbian
-    image:  wpilib/raspbian-cross-ubuntu:10-18.04
-  - container: bionic
-    image: wpilib/aarch64-cross-ubuntu:bionic-18.04
   - container: ubuntu
     image:  wpilib/ubuntu-base:18.04
 
 stages:
 - stage: Build
   jobs:
-  - job: Linux_Arm
-    pool:
-      vmImage: 'Ubuntu 16.04'
-
-    container: wpilib2020
-
-    steps:
-      - checkout: self
-        submodules: true
-      - task: Gradle@2
-        inputs:
-          workingDirectory: ''
-          gradleWrapperFile: 'gradlew'
-          gradleOptions: '-Xmx3072m'
-          publishJUnitResults: false
-          testResultsFiles: '**/TEST-*.xml'
-          tasks: 'build'
-          options: '-Ponlylinuxathena'
-          # checkStyleRunAnalysis: true
-          # pmdRunAnalysis: true
-
-      - task: PublishPipelineArtifact@0
-        inputs:
-          artifactName: 'Athena'
-          targetPath: 'build/allOutputs'
-
-  - job: Linux_Raspbian
-    pool:
-      vmImage: 'Ubuntu 16.04'
-
-    container: raspbian
-
-    steps:
-      - checkout: self
-        submodules: true
-      - task: Gradle@2
-        inputs:
-          workingDirectory: ''
-          gradleWrapperFile: 'gradlew'
-          gradleOptions: '-Xmx3072m'
-          publishJUnitResults: true
-          testResultsFiles: '**/TEST-*.xml'
-          tasks: 'build'
-          options: '-Ponlylinuxraspbian'
-          # checkStyleRunAnalysis: true
-          # pmdRunAnalysis: true
-
-      - task: PublishPipelineArtifact@0
-        inputs:
-          artifactName: 'Raspbian'
-          targetPath: 'build/allOutputs'
-
-  - job: Linux_Bionic
-    pool:
-      vmImage: 'Ubuntu 16.04'
-
-    container: bionic
-
-    steps:
-      - checkout: self
-        submodules: true
-      - task: Gradle@2
-        inputs:
-          workingDirectory: ''
-          gradleWrapperFile: 'gradlew'
-          gradleOptions: '-Xmx3072m'
-          publishJUnitResults: true
-          testResultsFiles: '**/TEST-*.xml'
-          tasks: 'build'
-          options: '-Ponlylinuxaarch64bionic'
-          # checkStyleRunAnalysis: true
-          # pmdRunAnalysis: true
-
-      - task: PublishPipelineArtifact@0
-        inputs:
-          artifactName: 'Bionic'
-          targetPath: 'build/allOutputs'
-
   - job: Linux
     pool:
       vmImage: 'Ubuntu 16.04'
@@ -240,18 +156,6 @@ stages:
     - task: DownloadPipelineArtifact@0
       inputs:
         artifactName: 'Linux'
-        targetPath: 'build-tools/combiner/products/build/allOutputs'
-    - task: DownloadPipelineArtifact@0
-      inputs:
-        artifactName: 'Raspbian'
-        targetPath: 'build-tools/combiner/products/build/allOutputs'
-    - task: DownloadPipelineArtifact@0
-      inputs:
-        artifactName: 'Bionic'
-        targetPath: 'build-tools/combiner/products/build/allOutputs'
-    - task: DownloadPipelineArtifact@0
-      inputs:
-        artifactName: 'Athena'
         targetPath: 'build-tools/combiner/products/build/allOutputs'
 
     - task: Gradle@2
