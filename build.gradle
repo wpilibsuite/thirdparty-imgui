@@ -41,7 +41,7 @@ task gl3wGenerateTask(type:Exec) {
         Files.createDirectories(buildDirectory)
     }
     workingDir buildDirectory.toString()
-    commandLine 'python', '../../gl3w/gl3w_gen.py'
+    commandLine 'py', '../../gl3w/gl3w_gen.py'
 }
 /*
     if (!buildType.contains("Shared")) {
@@ -136,6 +136,9 @@ model {
                 }
                 lib library: 'gl3w', linkage: 'static'
                 lib library: 'glfw3'
+                it.tasks.withType(CCompile) {
+                    dependsOn gl3wGenerateTask
+                }
             }
             //binaries.withType(SharedLibraryBinarySpec) {
             //    buildable = false
@@ -158,6 +161,7 @@ model {
             binaries.all {
                 if (toolChain in VisualCpp) {
                     cCompiler.args '-D_UNICODE', '-DUNICODE', '-DWIN32', '-D_WIN32', '-DSTRICT', '-DWIN32_LEAN_AND_MEAN', '-D_HAS_EXCEPTIONS=1'
+                    linker.args << 'kernel32.lib' << 'Gdi32.lib'
                 } else {
                     cCompiler.args '-Wshadow', '-fexceptions', '-Wno-missing-field-initializers'
                 }
@@ -184,18 +188,22 @@ model {
                 }
             }
             binaries.all {
+                it.tasks.withType(CCompile) {
+                    dependsOn gl3wGenerateTask
+                }
                 if (toolChain in VisualCpp) {
                     cCompiler.args '-D_UNICODE', '-DUNICODE', '-DWIN32', '-D_WIN32', '-DSTRICT', '-DWIN32_LEAN_AND_MEAN', '-D_HAS_EXCEPTIONS=1'
+                    linker.args << 'kernel32.lib' << 'Gdi32.lib' << 'User32.lib' << 'Shell32.lib'
                 } else {
                     cCompiler.args '-Wshadow', '-fexceptions', '-Wno-missing-field-initializers'
                 }
                 if (it in SharedLibraryBinarySpec) {
-                    it.cppCompiler.define '_GLFW_BUILD_DLL'
+                    it.cCompiler.define '_GLFW_BUILD_DLL'
                     if (!it.targetPlatform.operatingSystem.isWindows()) {
                         it.linker.args << '-fvisibility=hidden'
                     }
                 } else {
-                    it.cppCompiler.define '_GLFW_VULKAN_STATIC'
+                    it.cCompiler.define '_GLFW_VULKAN_STATIC'
                     it.linker.args << '-lvulkan'
                 }
                 if (it.targetPlatform.operatingSystem.isWindows()) {
@@ -272,6 +280,48 @@ model {
             //}
             appendDebugPathToBinaries(binaries)
         }
+    }
+    tasks {
+        println "in tasks"
+        def tpMap = [:]
+        $.binaries.each {
+            def key = '';
+            if (it instanceof StaticLibraryBinarySpec) {
+                key = "$it.targetPlatform.name:$it.buildType.name".toString()
+            } else {
+                return
+            }
+            def value = tpMap[key]
+            if (value == null) {
+                value = []
+                tpMap.put(key, value)
+            }
+            value << it
+        }
+
+        tpMap.each { bins ->
+            def root = project.file('build/combined')
+            project.tasks.create("combine${bins.key.replace(':', '')}combinedlibrary", Task) { t ->
+                build.dependsOn t
+                def files = []
+                
+                bins.value.each { binary->
+                    t.dependsOn binary.tasks.createStaticLib
+                    files << binary.staticLibraryFile
+                }
+
+                inputs.files(files)
+
+
+                doLast {
+                    files.each {
+                        println it
+                    }
+                    println 'done----------------------'
+                }
+            }
+        }
+        
     }
 }
 
