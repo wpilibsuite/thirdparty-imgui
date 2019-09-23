@@ -1,6 +1,8 @@
 import java.nio.file.Files
 import java.nio.file.Paths
 import org.gradle.internal.os.OperatingSystem
+import org.gradle.nativeplatform.toolchain.internal.msvcpp.VisualStudioLocator;
+import org.gradle.nativeplatform.toolchain.VisualCpp;
 
 plugins {
     id 'c'
@@ -137,6 +139,9 @@ model {
                 lib library: 'gl3w', linkage: 'static'
                 lib library: 'glfw3'
                 it.tasks.withType(CCompile) {
+                    dependsOn gl3wGenerateTask
+                }
+                it.tasks.withType(CppCompile) {
                     dependsOn gl3wGenerateTask
                 }
             }
@@ -281,7 +286,7 @@ model {
             appendDebugPathToBinaries(binaries)
         }
     }
-    tasks {
+    publishing {
         println "in tasks"
         def tpMap = [:]
         $.binaries.each {
@@ -299,21 +304,62 @@ model {
             value << it
         }
 
+        def root = project.file('build/combined')
         tpMap.each { bins ->
-            def root = project.file('build/combined')
-            project.tasks.create("combine${bins.key.replace(':', '')}combinedlibrary", Task) { t ->
+            def folderName = bins.key.replace(':', '')
+            project.tasks.create("combine${folderName}combinedlibrary", Task) { t ->
                 build.dependsOn t
                 def files = []
-                
+
+                def targetPlatform
+                def toolChain
+
                 bins.value.each { binary->
                     t.dependsOn binary.tasks.createStaticLib
                     files << binary.staticLibraryFile
+                    targetPlatform = binary.targetPlatform
+                    toolChain = binary.toolChain
                 }
 
                 inputs.files(files)
 
+                def outputDir = new File(root, folderName)
+                outputs.dir(outputDir)
 
                 doLast {
+
+                    if (targetPlatform.operatingSystem.isWindows()) {
+                        // Find Windows Toolchain
+                        def vslocator = project.services.get(VisualStudioLocator.class)
+                        def vsiSearch = vslocator.locateComponent(toolChain.installDir)
+                        if (vsiSearch.available) {
+                            def vsi = vsiSearch.component
+                            def vscpp = vsi.visualCpp.forPlatform(targetPlatform)
+                            def libExe = vscpp.archiverExecutable
+
+                            def runargs = ["/OUT:${outputDir}\\imgui.lib".toString()]
+                            files.each {
+                                runargs << it.toString()
+                            }
+
+                            project.delete(outputDir)
+
+                            outputDir.mkdirs()
+
+                            project.exec {
+                                executable libExe
+                                args(runargs)
+                            }
+
+                        } else {
+                            throw new GradleException("Could not combine windows archive")
+                        }
+                    } else if (targetPlatform.operatingSystem.isMacOsX()) {
+                    } else {
+
+                    }
+
+
                     files.each {
                         println it
                     }
@@ -321,7 +367,7 @@ model {
                 }
             }
         }
-        
+
     }
 }
 
