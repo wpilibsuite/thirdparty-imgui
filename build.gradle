@@ -51,6 +51,11 @@ task gl3wGenerateTask(type:Exec) {
 
 }
 model {
+    binaries.all {
+        it.tasks.withType(AbstractNativeSourceCompileTask) {
+            dependsOn gl3wGenerateTask
+        }
+    }
     components {
         imgui(NativeLibrarySpec) {
             sources {
@@ -72,13 +77,7 @@ model {
                     cppCompiler.args '-Wshadow', '-fexceptions', '-Wno-missing-field-initializers'
                 }
                 lib library: 'gl3w', linkage: 'static'
-                lib library: 'glfw3'
-                it.tasks.withType(CCompile) {
-                    dependsOn gl3wGenerateTask
-                }
-                it.tasks.withType(CppCompile) {
-                    dependsOn gl3wGenerateTask
-                }
+                lib library: 'glfw3', linkage: 'static'
             }
             //binaries.withType(SharedLibraryBinarySpec) {
             //    buildable = false
@@ -105,9 +104,6 @@ model {
                 } else {
                     cCompiler.args '-Wshadow', '-fexceptions', '-Wno-missing-field-initializers'
                 }
-                it.tasks.withType(CCompile) {
-                    dependsOn gl3wGenerateTask
-                }
             }
             //binaries.withType(SharedLibraryBinarySpec) {
             //    buildable = false
@@ -128,9 +124,6 @@ model {
                 }
             }
             binaries.all {
-                it.tasks.withType(CCompile) {
-                    dependsOn gl3wGenerateTask
-                }
                 if (toolChain in VisualCpp) {
                     cCompiler.args '-D_UNICODE', '-DUNICODE', '-DWIN32', '-D_WIN32', '-DSTRICT', '-DWIN32_LEAN_AND_MEAN', '-D_HAS_EXCEPTIONS=1'
                     linker.args << 'kernel32.lib' << 'Gdi32.lib' << 'User32.lib' << 'Shell32.lib'
