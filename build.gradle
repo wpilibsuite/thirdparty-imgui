@@ -51,9 +51,11 @@ task gl3wGenerateTask(type:Exec) {
 
 }
 model {
-    binaries.all {
-        it.tasks.withType(AbstractNativeSourceCompileTask) {
-            dependsOn gl3wGenerateTask
+    binaries {
+        all {
+            it.tasks.withType(AbstractNativeSourceCompileTask) {
+                dependsOn gl3wGenerateTask
+            }
         }
     }
     components {
