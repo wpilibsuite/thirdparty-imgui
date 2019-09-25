@@ -43,78 +43,13 @@ task gl3wGenerateTask(type:Exec) {
         Files.createDirectories(buildDirectory)
     }
     workingDir buildDirectory.toString()
-    commandLine 'py', '../../gl3w/gl3w_gen.py'
-}
-/*
-    if (!buildType.contains("Shared")) {
-        if (project.platform.startsWith('windows')) {
-            project.tasks.create('nativeLibLinks' + buildType, Exec) {
-                dependsOn 'make' + buildType
-                workingDir buildDirectory.resolve("lib").resolve(buildTypeFolder).toString()
-                executable 'lib'
-                def inputFiles = ["imgui_part", "gl3w", "glfw3"]
-                def setArgs = ["/OUT:imgui.lib"]
-                inputFiles.each {
-                    def inFile = it
-                    if (buildTypeFolder == 'Debug') {
-                        inFile = inFile + 'd.lib'
-                    } else {
-                        inFile = inFile + '.lib'
-                    }
-                    setArgs << inFile
-                }
-                args = setArgs
-
-                inputs.file buildDirectory.resolve("lib").resolve(buildTypeFolder).resolve("imgui_part.lib").toFile()
-                outputs.file buildDirectory.resolve("lib").resolve(buildTypeFolder).resolve("imgui.lib").toFile()
-            }
-        } else if (project.platform.startsWith('osx')) {
-            project.tasks.create('nativeLibLinks' + buildType, Exec) {
-                dependsOn 'make' + buildType
-                executable 'libtool'
-                workingDir buildDirectory.resolve("lib").toString()
-                def libDirectory = buildDirectory.resolve("lib").toFile()
-                args '-static'
-                args '-o'
-                args "libimgui.a"
-                doFirst {
-                    libDirectory.eachFile() {
-                        if (!it.name.endsWith('.a') || it.name == "libimgui.a".toString()) {
-                            return
-                        }
-                        args it.absolutePath
-                    }
-                }
-                inputs.file buildDirectory.resolve("lib").resolve("libimgui_part.a").toFile()
-                outputs.file buildDirectory.resolve("lib").resolve("libimgui.a").toFile()
-            }
-        } else {
-            project.tasks.create('nativeLibLinks' + buildType, Exec) {
-                dependsOn 'make' + buildType
-                workingDir buildDirectory.resolve("lib").toString()
-                executable 'ar'
-                args = ['-M']
-                def inputFiles = ["libimgui_part", "libgl3w", "libglfw3"]
-
-                def inputString = "create libimgui.a\n"
-                inputFiles.each {
-                    def inFile = 'addlib ' + it
-                    if (buildTypeFolder == 'Debug') {
-                        inFile = inFile + 'd.a\n'
-                    } else {
-                        inFile = inFile + '.a\n'
-                    }
-                    inputString += inFile
-                }
-
-                inputString += "save\nend\n"
-                standardInput = new ByteArrayInputStream(inputString.getBytes())
-                inputs.file buildDirectory.resolve("lib").resolve("libimgui_part.a").toFile()
-                outputs.file buildDirectory.resolve("lib").resolve("libimgui.a").toFile()
-            }
-        }
+    if (OperatingSystem.current().isWindows()) {
+        commandLine 'py', '../../gl3w/gl3w_gen.py'
+    } else {
+        commandLine 'python', '../../gl3w/gl3w_gen.py'
     }
-*/
+
+}
 model {
     components {
         imgui(NativeLibrarySpec) {
@@ -286,89 +221,7 @@ model {
             appendDebugPathToBinaries(binaries)
         }
     }
-    publishing {
-        println "in tasks"
-        def tpMap = [:]
-        $.binaries.each {
-            def key = '';
-            if (it instanceof StaticLibraryBinarySpec) {
-                key = "$it.targetPlatform.name:$it.buildType.name".toString()
-            } else {
-                return
-            }
-            def value = tpMap[key]
-            if (value == null) {
-                value = []
-                tpMap.put(key, value)
-            }
-            value << it
-        }
 
-        def root = project.file('build/combined')
-        tpMap.each { bins ->
-            def folderName = bins.key.replace(':', '')
-            project.tasks.create("combine${folderName}combinedlibrary", Task) { t ->
-                build.dependsOn t
-                def files = []
-
-                def targetPlatform
-                def toolChain
-
-                bins.value.each { binary->
-                    t.dependsOn binary.tasks.createStaticLib
-                    files << binary.staticLibraryFile
-                    targetPlatform = binary.targetPlatform
-                    toolChain = binary.toolChain
-                }
-
-                inputs.files(files)
-
-                def outputDir = new File(root, folderName)
-                outputs.dir(outputDir)
-
-                doLast {
-
-                    if (targetPlatform.operatingSystem.isWindows()) {
-                        // Find Windows Toolchain
-                        def vslocator = project.services.get(VisualStudioLocator.class)
-                        def vsiSearch = vslocator.locateComponent(toolChain.installDir)
-                        if (vsiSearch.available) {
-                            def vsi = vsiSearch.component
-                            def vscpp = vsi.visualCpp.forPlatform(targetPlatform)
-                            def libExe = vscpp.archiverExecutable
-
-                            def runargs = ["/OUT:${outputDir}\\imgui.lib".toString()]
-                            files.each {
-                                runargs << it.toString()
-                            }
-
-                            project.delete(outputDir)
-
-                            outputDir.mkdirs()
-
-                            project.exec {
-                                executable libExe
-                                args(runargs)
-                            }
-
-                        } else {
-                            throw new GradleException("Could not combine windows archive")
-                        }
-                    } else if (targetPlatform.operatingSystem.isMacOsX()) {
-                    } else {
-
-                    }
-
-
-                    files.each {
-                        println it
-                    }
-                    println 'done----------------------'
-                }
-            }
-        }
-
-    }
 }
 
 apply from: 'publish.gradle'
