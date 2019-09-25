@@ -78,6 +78,9 @@ model {
                 } else {
                     cppCompiler.args '-Wshadow', '-fexceptions', '-Wno-missing-field-initializers'
                 }
+                if (it.targetPlatform.isMacOsX()) {
+                    it.linker.args << '-framework' << 'Cocoa' << '-framework' << 'IOKit' << '-framework' << 'CoreFoundation' << '-framework' << 'CoreVideo'
+                }
                 lib library: 'gl3w', linkage: 'static'
                 lib library: 'glfw3', linkage: 'static'
             }
