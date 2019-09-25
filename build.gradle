@@ -169,7 +169,7 @@ model {
                         it.cCompiler.args << '-fno-common'
                     }
                     it.cCompiler.define '_GLFW_COCOA'
-                    it.objCCompiler.define '_GLFW_COCOA'
+                    it.objcCompiler.define '_GLFW_COCOA'
                     it.linker.args << '-framework' << 'Cocoa' << '-framework' << 'IOKit' << '-framework' << 'CoreFoundation' << '-framework' << 'CoreVideo'
                     it.sources {
                         glfw3MacC(CSourceSet) {
