@@ -111,6 +111,9 @@ model {
                 } else {
                     cCompiler.args '-Wshadow', '-fexceptions', '-Wno-missing-field-initializers'
                 }
+                if (it.targetPlatform.operatingSystem.isMacOsX()) {
+                    it.cCompiler.args << '-fno-common'
+                }
             }
             //binaries.withType(SharedLibraryBinarySpec) {
             //    buildable = false
@@ -142,7 +145,7 @@ model {
                     if (!it.targetPlatform.operatingSystem.isWindows()) {
                         it.linker.args << '-fvisibility=hidden'
                     }
-                } else if (!it.targetPlatform.operatingSystem.isWindows()) {
+                } else if (it.targetPlatform.operatingSystem.isLinux()) {
                     it.cCompiler.define '_GLFW_VULKAN_STATIC'
                     it.linker.args << '-lvulkan'
                 }
@@ -165,9 +168,7 @@ model {
                         }
                     }
                 } else if (it.targetPlatform.operatingSystem.isMacOsX()) {
-                    if (it in SharedLibraryBinarySpec) {
-                        it.cCompiler.args << '-fno-common'
-                    }
+                    it.cCompiler.args << '-fno-common'
                     it.cCompiler.define '_GLFW_COCOA'
                     it.objcCompiler.define '_GLFW_COCOA'
                     it.linker.args << '-framework' << 'Cocoa' << '-framework' << 'IOKit' << '-framework' << 'CoreFoundation' << '-framework' << 'CoreVideo'
