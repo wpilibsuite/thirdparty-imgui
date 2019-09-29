@@ -26,6 +26,9 @@ stages:
     steps:
       - checkout: self
         submodules: true
+      - script: |
+          sudo apt install -y libx11-dev mesa-common-dev
+        displayName: 'Install dependencies'
       - task: Gradle@2
         inputs:
           workingDirectory: ''
