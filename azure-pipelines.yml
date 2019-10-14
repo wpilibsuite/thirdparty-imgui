@@ -29,6 +29,9 @@ stages:
       - script: |
           sudo apt-get update && sudo apt-get install -y libx11-dev libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev mesa-common-dev libvulkan-dev
         displayName: 'Install dependencies'
+      - script: |
+          ./build_fonts.sh
+        displayName: 'Build fonts' 
       - task: Gradle@2
         inputs:
           workingDirectory: ''
@@ -51,6 +54,10 @@ stages:
     steps:
       - checkout: self
         submodules: true
+      - script: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
+          .\build_fonts.bat
+        displayName: 'Build fonts' 
       - task: Gradle@2
         inputs:
           workingDirectory: ''
@@ -80,6 +87,10 @@ stages:
           $ProgressPreference = 'SilentlyContinue'
           wget "https://github.com/wpilibsuite/frc-openjdk-windows/releases/download/v11.0.0u28-1/jdk-x86-11.0.0u28-1.zip" -O "build\jdk.zip"
         displayName: 'Download JDK'
+      - script: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
+          .\build_fonts.bat
+        displayName: 'Build fonts' 
       - task: JavaToolInstaller@0
         inputs:
           jdkSourceOption: localDirectory
@@ -115,6 +126,9 @@ stages:
       - script: |
           rm /Users/vsts/.gradle/init.d/log-gradle-version-plugin.gradle
         displayName: 'Delete Version init script'
+      - script: |
+          ./build_fonts.sh
+        displayName: 'Build fonts' 
       - task: Gradle@2
         inputs:
           workingDirectory: ''

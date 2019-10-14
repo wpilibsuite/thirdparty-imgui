@@ -65,6 +65,11 @@ task cppSourcesZip(type: Zip) {
         into '/imgui/'
     }
 
+    from('fonts') {
+        include '*.cpp'
+        into '/imgui/'
+    }
+
     from('build/gl3w/src') {
         include '*.c', '*.h'
         into '/gl3w/'
@@ -92,6 +97,11 @@ task cppHeadersZip(type: Zip) {
 
     from('imgui/examples') {
         include 'imgui_impl_glfw.h', 'imgui_impl_opengl3.h'
+        into '/'
+    }
+
+    from('fonts') {
+        include '*.h'
         into '/'
     }
 
