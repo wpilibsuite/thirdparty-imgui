@@ -54,7 +54,8 @@ stages:
     steps:
       - checkout: self
         submodules: true
-      - powershell: |
+      - script: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
           .\build_fonts.bat
         displayName: 'Build fonts' 
       - task: Gradle@2
@@ -86,7 +87,8 @@ stages:
           $ProgressPreference = 'SilentlyContinue'
           wget "https://github.com/wpilibsuite/frc-openjdk-windows/releases/download/v11.0.0u28-1/jdk-x86-11.0.0u28-1.zip" -O "build\jdk.zip"
         displayName: 'Download JDK'
-      - powershell: |
+      - script: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
           .\build_fonts.bat
         displayName: 'Build fonts' 
       - task: JavaToolInstaller@0
