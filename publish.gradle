@@ -112,6 +112,11 @@ task cppHeadersZip(type: Zip) {
     from('glfw/include') {
         into '/'
     }
+
+    from('stb') {
+        include 'stb_image.h'
+        into '/'
+    }
 }
 
 build.dependsOn cppHeadersZip
