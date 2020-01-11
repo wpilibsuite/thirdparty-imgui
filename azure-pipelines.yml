@@ -124,9 +124,6 @@ stages:
           export JAVA_HOME=`/usr/libexec/java_home -v 11`
         displayName: 'Setup JDK'
       - script: |
-          rm /Users/vsts/.gradle/init.d/log-gradle-version-plugin.gradle
-        displayName: 'Delete Version init script'
-      - script: |
           ./build_fonts.sh
         displayName: 'Build fonts' 
       - task: Gradle@2
