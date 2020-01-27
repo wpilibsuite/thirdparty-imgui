@@ -145,9 +145,6 @@ model {
                     if (!it.targetPlatform.operatingSystem.isWindows()) {
                         it.linker.args << '-fvisibility=hidden'
                     }
-                } else if (it.targetPlatform.operatingSystem.isLinux()) {
-                    it.cCompiler.define '_GLFW_VULKAN_STATIC'
-                    it.linker.args << '-lvulkan'
                 }
                 if (it.targetPlatform.operatingSystem.isWindows()) {
                     it.cCompiler.define '_GLFW_WIN32'
