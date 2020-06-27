@@ -63,11 +63,11 @@ model {
             sources {
                 cpp {
                     source {
-                        srcDirs 'imgui', 'fonts', 'image'
+                        srcDirs 'imgui', 'fonts', 'image', 'implot'
                         include '*.cpp', 'examples/imgui_impl_glfw.cpp', 'examples/imgui_impl_opengl3.cpp'
                     }
                     exportedHeaders {
-                        srcDirs 'imgui', 'fonts', 'stb'
+                        srcDirs 'imgui', 'fonts', 'stb', 'implot'
                         include '*.h', 'examples/imgui_impl_glfw.h', 'examples/imgui_impl_opengl3.h'
                     }
                 }
