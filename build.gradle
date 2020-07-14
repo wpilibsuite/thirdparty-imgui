@@ -44,7 +44,7 @@ task gl3wGenerateTask(type:Exec) {
     }
     workingDir buildDirectory.toString()
     if (OperatingSystem.current().isWindows()) {
-        commandLine 'python', '../../gl3w/gl3w_gen.py'
+        commandLine 'py', '../../gl3w/gl3w_gen.py'
     } else {
         commandLine 'python', '../../gl3w/gl3w_gen.py'
     }
