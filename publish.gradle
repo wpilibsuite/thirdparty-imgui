@@ -195,8 +195,12 @@ model {
 
                 def pdbFiles = []
 
-                def sourceLinkFile = tasks.named('generateSourceLinkFile')
-                dependsOn sourceLinkFile
+                def sourceLinkFile
+
+                if (targetPlatform.operatingSystem.isWindows()) {
+                    sourceLinkFile = tasks.named('generateSourceLinkFile')
+                    dependsOn sourceLinkFile
+                }
 
                 doFirst {
                     files.each {
