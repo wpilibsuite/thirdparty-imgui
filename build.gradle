@@ -8,7 +8,7 @@ plugins {
     id 'c'
     id 'cpp'
     id 'visual-studio'
-    id 'edu.wpi.first.NativeUtils' version '2020.1.1'
+    id 'edu.wpi.first.NativeUtils' version '2020.9.3'
 }
 
 if (OperatingSystem.current().isMacOsX()) {
@@ -44,7 +44,7 @@ task gl3wGenerateTask(type:Exec) {
     }
     workingDir buildDirectory.toString()
     if (OperatingSystem.current().isWindows()) {
-        commandLine 'py', '../../gl3w/gl3w_gen.py'
+        commandLine 'python', '../../gl3w/gl3w_gen.py'
     } else {
         commandLine 'python', '../../gl3w/gl3w_gen.py'
     }
@@ -226,5 +226,5 @@ model {
 apply from: 'publish.gradle'
 
 wrapper {
-    gradleVersion = '5.4.1'
+    gradleVersion = '6.0.1'
 }
