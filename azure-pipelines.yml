@@ -26,12 +26,14 @@ stages:
     steps:
       - checkout: self
         submodules: true
+        path: imgui
+
       - script: |
           sudo apt-get update && sudo apt-get install -y libx11-dev libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev mesa-common-dev
         displayName: 'Install dependencies'
       - script: |
           ./build_fonts.sh
-        displayName: 'Build fonts' 
+        displayName: 'Build fonts'
       - task: Gradle@2
         inputs:
           workingDirectory: ''
@@ -54,10 +56,12 @@ stages:
     steps:
       - checkout: self
         submodules: true
+        path: imgui
+
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
           .\build_fonts.bat
-        displayName: 'Build fonts' 
+        displayName: 'Build fonts'
       - task: Gradle@2
         inputs:
           workingDirectory: ''
@@ -82,15 +86,17 @@ stages:
     steps:
       - checkout: self
         submodules: true
+        path: imgui
+
       - powershell: |
           mkdir build
           $ProgressPreference = 'SilentlyContinue'
-          wget "https://github.com/wpilibsuite/frc-openjdk-windows/releases/download/v11.0.0u28-1/jdk-x86-11.0.0u28-1.zip" -O "build\jdk.zip"
+          wget "https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.4%2B11/OpenJDK11U-jdk_x86-32_windows_hotspot_11.0.4_11.zip" -O "build\jdk.zip"
         displayName: 'Download JDK'
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
           .\build_fonts.bat
-        displayName: 'Build fonts' 
+        displayName: 'Build fonts'
       - task: JavaToolInstaller@0
         inputs:
           jdkSourceOption: localDirectory
@@ -119,13 +125,15 @@ stages:
     steps:
       - checkout: self
         submodules: true
+        path: imgui
+
       - script: |
           mkdir build
           export JAVA_HOME=`/usr/libexec/java_home -v 11`
         displayName: 'Setup JDK'
       - script: |
           ./build_fonts.sh
-        displayName: 'Build fonts' 
+        displayName: 'Build fonts'
       - task: Gradle@2
         inputs:
           workingDirectory: ''

@@ -14,7 +14,7 @@ publishing {
     }
 }
 
-def releaseNumber = 2
+def releaseNumber = 3
 
 def pubVersion = "1.76-$releaseNumber"
 
@@ -47,8 +47,8 @@ copyAllOutputs.inputs.file versionFile
 copyAllOutputs.from versionFile
 
 task cppSourcesZip(type: Zip) {
-    destinationDir = outputsFolder
-    baseName = zipBaseName
+    destinationDirectory = outputsFolder
+    archiveBaseName = zipBaseName
     classifier = "sources"
 
     from(licenseFile) {
@@ -82,8 +82,8 @@ task cppSourcesZip(type: Zip) {
 }
 
 task cppHeadersZip(type: Zip) {
-    destinationDir = outputsFolder
-    baseName = zipBaseName
+    destinationDirectory = outputsFolder
+    archiveBaseName = zipBaseName
     classifier = "headers"
 
     from(licenseFile) {
@@ -126,6 +126,9 @@ addTaskToCopyAllOutputs(cppHeadersZip)
 addTaskToCopyAllOutputs(cppSourcesZip)
 
 class CombineTask extends DefaultTask {
+    @OutputDirectory
+    File outputDirectory
+
     @OutputFile
     File outputFile
 
@@ -178,6 +181,8 @@ model {
 
                 def outputDir = new File(root, folderName)
 
+                outputDirectory = outputDir
+
                 def debugStr =  buildType.name.contains('debug') ? 'd' : ''
 
                 if (targetPlatform.operatingSystem.isWindows()) {
@@ -187,6 +192,25 @@ model {
                 }
 
                 outputs.file(outputFile)
+
+                def pdbFiles = []
+
+                def sourceLinkFile
+
+                if (targetPlatform.operatingSystem.isWindows()) {
+                    sourceLinkFile = tasks.named('generateSourceLinkFile')
+                    dependsOn sourceLinkFile
+                }
+
+                doFirst {
+                    files.each {
+                        project.fileTree(it.parentFile.absolutePath).matching {
+                            include "*.pdb"
+                        }.each {
+                            pdbFiles << it
+                        }
+                    }
+                }
 
                 doLast {
 
@@ -199,8 +223,6 @@ model {
                             def vscpp = vsi.visualCpp.forPlatform(targetPlatform)
                             def libExe = vscpp.archiverExecutable
 
-
-
                             def runargs = ["/OUT:${outputFile.toString()}".toString()]
                             files.each {
                                 runargs << it.toString()
@@ -211,6 +233,14 @@ model {
                             project.exec {
                                 executable libExe
                                 args(runargs)
+                            }
+                            project.copy {
+                                from pdbFiles
+                                into outputDir
+                            }
+                            project.copy {
+                                from sourceLinkFile.get().sourceLinkBaseFile
+                                into outputDir
                             }
 
                         } else {
@@ -249,9 +279,9 @@ model {
 
             def combineZipTask =  project.tasks.create(zipBaseName + '-' + clsfier, Zip) {
                 description = 'Create component archive for static ' + clsfier
-                destinationDir outputsFolder
+                destinationDirectory = outputsFolder
                 classifier = clsfier
-                baseName = '_M_' + zipBaseName
+                archiveBaseName = '_M_' + zipBaseName
                 duplicatesStrategy = 'exclude'
 
                 from (licenseFile) {
@@ -260,7 +290,7 @@ model {
 
                 dependsOn combineTask
 
-                from(combineTask.outputFile) {
+                from(combineTask.outputDirectory) {
                     into nativeUtils.getPlatformPath(combineTask.binSpec) + '/static'
                 }
             }
