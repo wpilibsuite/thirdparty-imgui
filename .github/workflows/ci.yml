@@ -1,0 +1,101 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build-linux:
+    name: "Build - Linux"
+    runs-on: ubuntu-latest
+    container: wpilib/ubuntu-base:18.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y libx11-dev libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev mesa-common-dev
+      - name: Build fonts
+        run: ./build_fonts.sh
+      - name: Build
+        run: ./gradlew build
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Linux
+          path: build/allOutputs
+
+  build-windows:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - artifact-name: Win64
+            architecture: x64
+          - artifact-name: Win32
+            architecture: x86
+    name: "Build - ${{ matrix.artifact-name }}"
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+          architecture: ${{ matrix.architecture }}
+      - name: Build fonts
+        shell: cmd
+        run: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{ matrix.architecture }}
+          .\build_fonts.bat
+      - name: Build with Gradle
+        run: ./gradlew build
+      - uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.artifact-name }}
+          path: build/allOutputs
+
+  build-macos:
+    name: "Build - macOS"
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Build fonts
+        run: ./build_fonts.sh
+      - name: Build
+        run: ./gradlew build
+      - uses: actions/upload-artifact@v2
+        with:
+          name: macOS
+          path: build/allOutputs
+
+  combine:
+    name: Combine
+    needs: [build-linux, build-windows, build-macos]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: wpilibsuite/build-tools
+      - uses: actions/download-artifact@v2
+        with:
+          path: combiner/products/build/allOutputs
+      - name: Flatten Artifacts
+        run: rsync -a --delete combiner/products/build/allOutputs/*/* combiner/products/build/allOutputs/
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Publish
+        run: cd combiner && ./gradlew publish -Pthirdparty
+        env:
+          ARTIFACTORY_PUBLISH_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+          ARTIFACTORY_PUBLISH_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
+      - name: Publish Release
+        run: cd combiner && ./gradlew publish -Pthirdparty -PreleaseRepoPublish
+        env:
+          ARTIFACTORY_PUBLISH_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+          ARTIFACTORY_PUBLISH_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Maven
+          path: ~/releases
