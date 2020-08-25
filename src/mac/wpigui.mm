@@ -56,7 +56,7 @@ bool gui::PlatformInitRenderer() {
   ImGui_ImplGlfw_InitForOpenGL(gContext->window, true);
   ImGui_ImplMetal_Init(device);
 
-  NSWindow *nswin = glfwGetCocoaWindow(window);
+  NSWindow *nswin = glfwGetCocoaWindow(gContext->window);
   gPlatformContext->layer = [CAMetalLayer layer];
   gPlatformContext->layer.device = device;
   gPlatformContext->layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
