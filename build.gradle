@@ -13,6 +13,7 @@ plugins {
 
 if (OperatingSystem.current().isMacOsX()) {
     apply plugin: 'objective-c'
+    apply plugin: 'objective-cpp'
 }
 
 repositories {
@@ -83,7 +84,7 @@ model {
                 } else if (it.targetPlatform.operatingSystem.isMacOsX()) {
                     it.linker.args << '-framework' << 'Cocoa' << '-framework' << 'IOKit' << '-framework' << 'CoreFoundation' << '-framework' << 'CoreVideo'
                     it.sources {
-                        imguiMacObjectiveC(ObjectiveCSourceSet) {
+                        imguiMacObjectiveCpp(ObjectiveCppSourceSet) {
                             source {
                                 srcDirs 'src/mac'
                                 include '*.mm'
