@@ -86,7 +86,7 @@ model {
                     it.sources {
                         imguiMacObjectiveCpp(ObjectiveCppSourceSet) {
                             source {
-                                srcDirs 'src/mac'
+                                srcDirs 'src/metal'
                                 include '*.mm'
                             }
                             exportedHeaders {
@@ -99,7 +99,7 @@ model {
                     it.sources {
                         imguiUnixCpp(CppSourceSet) {
                             source {
-                                srcDirs 'src/unix'
+                                srcDirs 'src/opengl'
                                 include '*.cpp'
                             }
                             exportedHeaders {
