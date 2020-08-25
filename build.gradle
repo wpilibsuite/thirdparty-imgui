@@ -82,7 +82,7 @@ model {
                 if (it.targetPlatform.operatingSystem.isWindows()) {
                     linker.args << 'kernel32.lib' << 'Gdi32.lib' << 'User32.lib' << 'Shell32.lib'
                 } else if (it.targetPlatform.operatingSystem.isMacOsX()) {
-                    it.linker.args << '-framework' << 'Cocoa' << '-framework' << 'IOKit' << '-framework' << 'CoreFoundation' << '-framework' << 'CoreVideo'
+                    it.linker.args << '-framework' << 'Metal' << '-framework' << 'MetalKit' << '-framework' << 'Cocoa' << '-framework' << 'IOKit' << '-framework' << 'CoreFoundation' << '-framework' << 'CoreVideo' << '-framework' << 'QuartzCore'
                     it.sources {
                         imguiMacObjectiveCpp(ObjectiveCppSourceSet) {
                             source {
