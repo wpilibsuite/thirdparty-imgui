@@ -65,11 +65,11 @@ model {
                 cpp {
                     source {
                         srcDirs 'imgui', 'fonts', 'image', 'implot', 'src'
-                        include '*.cpp', 'examples/imgui_impl_glfw.cpp', 'examples/imgui_impl_opengl3.cpp'
+                        include '*.cpp', 'examples/imgui_impl_glfw.cpp'
                     }
                     exportedHeaders {
                         srcDirs 'imgui', 'fonts', 'stb', 'implot', 'include'
-                        include '*.h', 'examples/imgui_impl_glfw.h', 'examples/imgui_impl_opengl3.h'
+                        include '*.h', 'examples/imgui_impl_glfw.h'
                     }
                 }
             }
@@ -86,8 +86,8 @@ model {
                     it.sources {
                         imguiMacObjectiveCpp(ObjectiveCppSourceSet) {
                             source {
-                                srcDirs 'src/metal'
-                                include '*.mm'
+                                srcDirs 'src/metal', 'imgui/examples'
+                                include 'wpigui_metal.mm', 'imgui_impl_metal.mm'
                             }
                             exportedHeaders {
                                 srcDirs 'imgui', 'fonts', 'stb', 'implot', 'include'
@@ -99,8 +99,8 @@ model {
                     it.sources {
                         imguiUnixCpp(CppSourceSet) {
                             source {
-                                srcDirs 'src/opengl'
-                                include '*.cpp'
+                                srcDirs 'src/opengl', 'imgui/examples'
+                                include 'wpigui_opengl.cpp', 'imgui_impl_opengl3.cpp'
                             }
                             exportedHeaders {
                                 srcDirs 'imgui', 'fonts', 'stb', 'implot', 'include'
@@ -108,8 +108,8 @@ model {
                             }
                         }
                     }
+                    lib library: 'gl3w', linkage: 'static'
                 }
-                lib library: 'gl3w', linkage: 'static'
                 lib library: 'glfw3', linkage: 'static'
             }
             //binaries.withType(SharedLibraryBinarySpec) {
