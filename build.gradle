@@ -63,11 +63,11 @@ model {
             sources {
                 cpp {
                     source {
-                        srcDirs 'imgui', 'fonts', 'image', 'implot'
+                        srcDirs 'imgui', 'fonts', 'image', 'implot', 'src'
                         include '*.cpp', 'examples/imgui_impl_glfw.cpp', 'examples/imgui_impl_opengl3.cpp'
                     }
                     exportedHeaders {
-                        srcDirs 'imgui', 'fonts', 'stb', 'implot'
+                        srcDirs 'imgui', 'fonts', 'stb', 'implot', 'include'
                         include '*.h', 'examples/imgui_impl_glfw.h', 'examples/imgui_impl_opengl3.h'
                     }
                 }
@@ -82,6 +82,31 @@ model {
                     linker.args << 'kernel32.lib' << 'Gdi32.lib' << 'User32.lib' << 'Shell32.lib'
                 } else if (it.targetPlatform.operatingSystem.isMacOsX()) {
                     it.linker.args << '-framework' << 'Cocoa' << '-framework' << 'IOKit' << '-framework' << 'CoreFoundation' << '-framework' << 'CoreVideo'
+                    it.sources {
+                        imguiMacObjectiveC(ObjectiveCSourceSet) {
+                            source {
+                                srcDirs 'src/mac'
+                                include '*.mm'
+                            }
+                            exportedHeaders {
+                                srcDirs 'imgui', 'fonts', 'stb', 'implot', 'include'
+                                include '*.h', 'examples/imgui_impl_glfw.h', 'examples/imgui_impl_metal.h'
+                            }
+                        }
+                    }
+                } else {
+                    it.sources {
+                        imguiUnixCpp(CppSourceSet) {
+                            source {
+                                srcDirs 'src/unix'
+                                include '*.cpp'
+                            }
+                            exportedHeaders {
+                                srcDirs 'imgui', 'fonts', 'stb', 'implot', 'include'
+                                include '*.h', 'examples/imgui_impl_glfw.h', 'examples/imgui_impl_opengl3.h'
+                            }
+                        }
+                    }
                 }
                 lib library: 'gl3w', linkage: 'static'
                 lib library: 'glfw3', linkage: 'static'
