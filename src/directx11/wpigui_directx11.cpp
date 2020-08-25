@@ -7,6 +7,8 @@
 
 #include <d3d11.h>
 
+#define GLFW_INCLUDE_NONE
+#define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 #include <examples/imgui_impl_glfw.h>
@@ -27,6 +29,14 @@ struct PlatformContext {
 }  // namespace
 
 static PlatformContext* gPlatformContext;
+
+static void CreateRenderTarget() {
+  ID3D11Texture2D* pBackBuffer;
+  gPlatformContext->pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
+  gPlatformContext->pd3dDevice->CreateRenderTargetView(pBackBuffer, nullptr,
+                                       &gPlatformContext->mainRenderTargetView);
+  pBackBuffer->Release();
+}
 
 static bool CreateDeviceD3D(HWND hWnd) {
   // Setup swap chain
@@ -64,6 +74,13 @@ static bool CreateDeviceD3D(HWND hWnd) {
   return true;
 }
 
+static void CleanupRenderTarget() {
+  if (gPlatformContext->mainRenderTargetView) {
+    gPlatformContext->mainRenderTargetView->Release();
+    gPlatformContext->mainRenderTargetView = nullptr;
+  }
+}
+
 static void CleanupDeviceD3D() {
   CleanupRenderTarget();
   if (gPlatformContext->pSwapChain) {
@@ -77,21 +94,6 @@ static void CleanupDeviceD3D() {
   if (gPlatformContext->pd3dDevice) {
     gPlatformContext->pd3dDevice->Release();
     gPlatformContext->pd3dDevice = nullptr;
-  }
-}
-
-static void CreateRenderTarget() {
-  ID3D11Texture2D* pBackBuffer;
-  gPlatformContext->pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
-  gPlatformContext->pd3dDevice->CreateRenderTargetView(pBackBuffer, nullptr,
-                                       &gPlatformContext->mainRenderTargetView);
-  pBackBuffer->Release();
-}
-
-static void CleanupRenderTarget() {
-  if (gPlatformContext->mainRenderTargetView) {
-    gPlatformContext->mainRenderTargetView->Release();
-    gPlatformContext->mainRenderTargetView = nullptr;
   }
 }
 
