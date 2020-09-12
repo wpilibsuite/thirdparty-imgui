@@ -68,8 +68,18 @@ model {
                         include '*.cpp', 'examples/imgui_impl_glfw.cpp', 'examples/imgui_impl_opengl3.cpp'
                     }
                     exportedHeaders {
-                        srcDirs 'imgui', 'fonts', 'stb', 'implot'
+                        srcDirs 'imgui', 'fonts', 'stb', 'implot', 'build/gl3w/include'
                         include '*.h', 'examples/imgui_impl_glfw.h', 'examples/imgui_impl_opengl3.h'
+                    }
+                }
+                c {
+                    source {
+                        srcDirs 'build/gl3w/src', 'glfw/src'
+                        include 'gl3w.c', 'context.c', 'init.c', 'input.c', 'monitor.c', 'vulkan.c', 'window.c', 'egl_context.c', 'osmesa_context.c'
+                    }
+                    exportedHeaders {
+                        srcDirs 'build/gl3w/include', 'glfw/include'
+                        include '*.h'
                     }
                 }
             }
@@ -79,7 +89,14 @@ model {
                 } else {
                     cppCompiler.args '-Wshadow', '-fexceptions', '-Wno-missing-field-initializers'
                 }
+                if (it in SharedLibraryBinarySpec) {
+                    it.cCompiler.define '_GLFW_BUILD_DLL'
+                    if (!it.targetPlatform.operatingSystem.isWindows()) {
+                        it.linker.args << '-fvisibility=hidden'
+                    }
+                }
                 if (it.targetPlatform.operatingSystem.isWindows()) {
+                    it.cCompiler.define '_GLFW_WIN32'
                     linker.args << 'kernel32.lib' << 'Gdi32.lib' << 'User32.lib' << 'Shell32.lib' << 'd3d11.lib' << 'd3dcompiler.lib'
                     it.sources {
                         imguiWindowsCpp(CppSourceSet) {
@@ -92,88 +109,6 @@ model {
                                 include '*.h', 'examples/imgui_impl_dx11.h'
                             }
                         }
-                    }
-                } else if (it.targetPlatform.operatingSystem.isMacOsX()) {
-                    it.linker.args << '-framework' << 'Metal' << '-framework' << 'MetalKit' << '-framework' << 'Cocoa' << '-framework' << 'IOKit' << '-framework' << 'CoreFoundation' << '-framework' << 'CoreVideo' << '-framework' << 'QuartzCore'
-                    it.sources {
-                        imguiMacObjectiveCpp(ObjectiveCppSourceSet) {
-                            source {
-                                srcDirs 'imgui'
-                                include 'examples/imgui_impl_metal.mm'
-                            }
-                            exportedHeaders {
-                                srcDirs 'imgui'
-                                include '*.h', 'examples/imgui_impl_metal.h'
-                            }
-                        }
-                    }
-                }
-                lib library: 'gl3w', linkage: 'static'
-                lib library: 'glfw3', linkage: 'static'
-            }
-            //binaries.withType(SharedLibraryBinarySpec) {
-            //    buildable = false
-            //}
-            appendDebugPathToBinaries(binaries)
-        }
-        gl3w(NativeLibrarySpec) {
-            sources {
-                c {
-                    source {
-                        srcDirs 'build/gl3w/src', 'gl3w-empty'
-                        include '*.c'
-                    }
-                    exportedHeaders {
-                        srcDirs 'build/gl3w/include'
-                        include '**/*.h'
-                    }
-                }
-            }
-            binaries.all {
-                if (toolChain in VisualCpp) {
-                    cCompiler.args '-D_UNICODE', '-DUNICODE', '-DWIN32', '-D_WIN32', '-DSTRICT', '-DWIN32_LEAN_AND_MEAN', '-D_HAS_EXCEPTIONS=1'
-                    linker.args << 'kernel32.lib' << 'Gdi32.lib'
-                } else {
-                    cCompiler.args '-Wshadow', '-fexceptions', '-Wno-missing-field-initializers'
-                }
-                if (it.targetPlatform.operatingSystem.isMacOsX()) {
-                    it.cCompiler.args << '-fno-common'
-                }
-            }
-            //binaries.withType(SharedLibraryBinarySpec) {
-            //    buildable = false
-            //}
-            appendDebugPathToBinaries(binaries)
-        }
-        glfw3(NativeLibrarySpec) {
-            sources {
-                c {
-                    source {
-                        srcDirs 'glfw/src'
-                        include 'context.c', 'init.c', 'input.c', 'monitor.c', 'vulkan.c', 'window.c', 'egl_context.c', 'osmesa_context.c'
-                    }
-                    exportedHeaders {
-                        srcDirs 'glfw/include'
-                        include '**/*.h'
-                    }
-                }
-            }
-            binaries.all {
-                if (toolChain in VisualCpp) {
-                    cCompiler.args '-D_UNICODE', '-DUNICODE', '-DWIN32', '-D_WIN32', '-DSTRICT', '-DWIN32_LEAN_AND_MEAN', '-D_HAS_EXCEPTIONS=1'
-                    linker.args << 'kernel32.lib' << 'Gdi32.lib' << 'User32.lib' << 'Shell32.lib'
-                } else {
-                    cCompiler.args '-Wshadow', '-fexceptions', '-Wno-missing-field-initializers'
-                }
-                if (it in SharedLibraryBinarySpec) {
-                    it.cCompiler.define '_GLFW_BUILD_DLL'
-                    if (!it.targetPlatform.operatingSystem.isWindows()) {
-                        it.linker.args << '-fvisibility=hidden'
-                    }
-                }
-                if (it.targetPlatform.operatingSystem.isWindows()) {
-                    it.cCompiler.define '_GLFW_WIN32'
-                    it.sources {
                         glfw3WindowsC(CSourceSet) {
                             source {
                                 srcDirs 'glfw/src'
@@ -193,8 +128,18 @@ model {
                     it.cCompiler.args << '-fno-common'
                     it.cCompiler.define '_GLFW_COCOA'
                     it.objcCompiler.define '_GLFW_COCOA'
-                    it.linker.args << '-framework' << 'Cocoa' << '-framework' << 'IOKit' << '-framework' << 'CoreFoundation' << '-framework' << 'CoreVideo'
+                    it.linker.args << '-framework' << 'Metal' << '-framework' << 'MetalKit' << '-framework' << 'Cocoa' << '-framework' << 'IOKit' << '-framework' << 'CoreFoundation' << '-framework' << 'CoreVideo' << '-framework' << 'QuartzCore'
                     it.sources {
+                        imguiMacObjectiveCpp(ObjectiveCppSourceSet) {
+                            source {
+                                srcDirs 'imgui'
+                                include 'examples/imgui_impl_metal.mm'
+                            }
+                            exportedHeaders {
+                                srcDirs 'imgui'
+                                include '*.h', 'examples/imgui_impl_metal.h'
+                            }
+                        }
                         glfw3MacC(CSourceSet) {
                             source {
                                 srcDirs 'glfw/src'
