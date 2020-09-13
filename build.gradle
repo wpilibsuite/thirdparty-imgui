@@ -184,9 +184,9 @@ model {
                     }
                 }
             }
-            //binaries.withType(SharedLibraryBinarySpec) {
-            //    buildable = false
-            //}
+            binaries.withType(SharedLibraryBinarySpec) {
+                buildable = false
+            }
             appendDebugPathToBinaries(binaries)
         }
     }
