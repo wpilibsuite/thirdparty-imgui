@@ -77,7 +77,6 @@ ext.createComponentZipTasks = { components, names, base, type, project, func ->
     components.each {
         if (it in NativeLibrarySpec && stringNames.contains(it.name)) {
             it.binaries.each {
-                if (it instanceof StaticLibraryBinarySpec) return
                 if (!it.buildable) return
                 def target = nativeUtils.getPublishClassifier(it)
                 if (configMap.containsKey(target)) {
