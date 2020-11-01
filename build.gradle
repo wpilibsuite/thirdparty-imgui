@@ -8,7 +8,7 @@ plugins {
     id 'c'
     id 'cpp'
     id 'visual-studio'
-    id 'edu.wpi.first.NativeUtils' version '2020.9.3'
+    id 'edu.wpi.first.NativeUtils' version '2021.0.2'
 }
 
 if (OperatingSystem.current().isMacOsX()) {
@@ -36,6 +36,13 @@ ext.addTaskToCopyAllOutputs = { task ->
     copyAllOutputs.dependsOn task
     copyAllOutputs.inputs.file task.archivePath
     copyAllOutputs.from task.archivePath
+}
+
+nativeUtils.platformConfigs.named('osxx86-64') {
+    it.objcCompiler.args.remove('-fobjc-weak')
+    it.objcCompiler.args.remove('-fobjc-arc')
+    it.objcppCompiler.args.remove('-fobjc-weak')
+    it.objcppCompiler.args.remove('-fobjc-arc')
 }
 
 task gl3wGenerateTask(type:Exec) {
@@ -128,6 +135,7 @@ model {
                     it.cCompiler.args << '-fno-common'
                     it.cCompiler.define '_GLFW_COCOA'
                     it.objcCompiler.define '_GLFW_COCOA'
+                    it.objcppCompiler.args << '-fobjc-arc'
                     it.linker.args << '-framework' << 'Metal' << '-framework' << 'MetalKit' << '-framework' << 'Cocoa' << '-framework' << 'IOKit' << '-framework' << 'CoreFoundation' << '-framework' << 'CoreVideo' << '-framework' << 'QuartzCore'
                     it.sources {
                         imguiMacObjectiveCpp(ObjectiveCppSourceSet) {
