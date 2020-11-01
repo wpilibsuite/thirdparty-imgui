@@ -38,6 +38,13 @@ ext.addTaskToCopyAllOutputs = { task ->
     copyAllOutputs.from task.archivePath
 }
 
+nativeUtils.platformConfigs.named('osxx86-64') {
+    it.objcCompiler.args.remove('-fobjc-weak')
+    it.objcCompiler.args.remove('-fobjc-arc')
+    it.objcppCompiler.args.remove('-fobjc-weak')
+    it.objcppCompiler.args.remove('-fobjc-arc')
+}
+
 task gl3wGenerateTask(type:Exec) {
     def buildDirectory = Paths.get(projectDir.canonicalPath).resolve('build').resolve('gl3w')
     if (!Files.exists(buildDirectory)) {
@@ -128,7 +135,7 @@ model {
                     it.cCompiler.args << '-fno-common'
                     it.cCompiler.define '_GLFW_COCOA'
                     it.objcCompiler.define '_GLFW_COCOA'
-                    it.objcCompiler.args.remove('-fobjc-arc')
+                    it.objcppCompiler.args << '-fobjc-arc'
                     it.linker.args << '-framework' << 'Metal' << '-framework' << 'MetalKit' << '-framework' << 'Cocoa' << '-framework' << 'IOKit' << '-framework' << 'CoreFoundation' << '-framework' << 'CoreVideo' << '-framework' << 'QuartzCore'
                     it.sources {
                         imguiMacObjectiveCpp(ObjectiveCppSourceSet) {
