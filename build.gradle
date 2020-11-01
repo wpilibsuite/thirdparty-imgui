@@ -128,6 +128,8 @@ model {
                     it.cCompiler.args << '-fno-common'
                     it.cCompiler.define '_GLFW_COCOA'
                     it.objcCompiler.define '_GLFW_COCOA'
+                    it.objcCompiler.args << '-fno-objc-arc'
+                    it.objcppCompiler.args << '-fno-objc-arc'
                     it.linker.args << '-framework' << 'Metal' << '-framework' << 'MetalKit' << '-framework' << 'Cocoa' << '-framework' << 'IOKit' << '-framework' << 'CoreFoundation' << '-framework' << 'CoreVideo' << '-framework' << 'QuartzCore'
                     it.sources {
                         imguiMacObjectiveCpp(ObjectiveCppSourceSet) {
