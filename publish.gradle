@@ -14,7 +14,7 @@ publishing {
     }
 }
 
-def releaseNumber = 9
+def releaseNumber = 10
 
 def pubVersion = "1.76-$releaseNumber"
 
@@ -65,6 +65,11 @@ task cppSourcesZip(type: Zip) {
         into '/imgui/'
     }
 
+    from('imgui/misc/cpp') {
+        include '*.cpp'
+        into '/imgui/'
+    }
+
     from('implot') {
         include '*.cpp'
         into '/implot/'
@@ -102,6 +107,11 @@ task cppHeadersZip(type: Zip) {
 
     from('imgui/examples') {
         include 'imgui_impl_glfw.h', 'imgui_impl_opengl3.h', 'imgui_impl_dx11.h', 'imgui_impl_metal.h'
+        into '/'
+    }
+
+    from('imgui/misc/cpp') {
+        include '*.h'
         into '/'
     }
 
