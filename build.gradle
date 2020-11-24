@@ -71,11 +71,11 @@ model {
             sources {
                 cpp {
                     source {
-                        srcDirs 'imgui', 'fonts', 'image', 'implot'
+                        srcDirs 'imgui', 'fonts', 'image', 'implot', 'imgui/misc/cpp'
                         include '*.cpp', 'examples/imgui_impl_glfw.cpp', 'examples/imgui_impl_opengl3.cpp'
                     }
                     exportedHeaders {
-                        srcDirs 'imgui', 'fonts', 'stb', 'implot', 'build/gl3w/include', 'glfw/include'
+                        srcDirs 'imgui', 'fonts', 'stb', 'implot', 'build/gl3w/include', 'glfw/include', 'imgui/misc/cpp'
                         include '*.h', 'examples/imgui_impl_glfw.h', 'examples/imgui_impl_opengl3.h'
                     }
                 }
