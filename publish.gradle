@@ -14,9 +14,9 @@ publishing {
     }
 }
 
-def releaseNumber = 10
+def releaseNumber = 1
 
-def pubVersion = "1.76-$releaseNumber"
+def pubVersion = "1.79-$releaseNumber"
 
 def baseArtifactId = 'imgui'
 def artifactGroupId = 'edu.wpi.first.thirdparty.frc2021'
