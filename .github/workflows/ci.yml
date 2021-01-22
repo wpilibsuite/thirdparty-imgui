@@ -54,6 +54,8 @@ jobs:
           path: build/allOutputs
 
   build-macos:
+    env:
+       MACOSX_DEPLOYMENT_TARGET: 10.14
     name: "Build - macOS"
     runs-on: macos-latest
     steps:
