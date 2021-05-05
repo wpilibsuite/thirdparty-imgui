@@ -72,11 +72,11 @@ model {
                 cpp {
                     source {
                         srcDirs 'imgui', 'fonts', 'image', 'implot', 'imgui/misc/cpp'
-                        include '*.cpp', 'examples/imgui_impl_glfw.cpp', 'examples/imgui_impl_opengl3.cpp'
+                        include '*.cpp', 'backends/imgui_impl_glfw.cpp', 'backends/imgui_impl_opengl3.cpp'
                     }
                     exportedHeaders {
                         srcDirs 'imgui', 'fonts', 'stb', 'implot', 'build/gl3w/include', 'glfw/include', 'imgui/misc/cpp'
-                        include '*.h', 'examples/imgui_impl_glfw.h', 'examples/imgui_impl_opengl3.h'
+                        include '*.h', 'backends/imgui_impl_glfw.h', 'backends/imgui_impl_opengl3.h'
                     }
                 }
                 c {
@@ -109,11 +109,11 @@ model {
                         imguiWindowsCpp(CppSourceSet) {
                             source {
                                 srcDirs 'imgui'
-                                include 'examples/imgui_impl_dx11.cpp'
+                                include 'backends/imgui_impl_dx11.cpp'
                             }
                             exportedHeaders {
                                 srcDirs 'imgui'
-                                include '*.h', 'examples/imgui_impl_dx11.h'
+                                include '*.h', 'backends/imgui_impl_dx11.h'
                             }
                         }
                         glfw3WindowsC(CSourceSet) {
@@ -141,11 +141,11 @@ model {
                         imguiMacObjectiveCpp(ObjectiveCppSourceSet) {
                             source {
                                 srcDirs 'imgui'
-                                include 'examples/imgui_impl_metal.mm'
+                                include 'backends/imgui_impl_metal.mm'
                             }
                             exportedHeaders {
                                 srcDirs 'imgui'
-                                include '*.h', 'examples/imgui_impl_metal.h'
+                                include '*.h', 'backends/imgui_impl_metal.h'
                             }
                         }
                         glfw3MacC(CSourceSet) {
