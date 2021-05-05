@@ -60,7 +60,7 @@ task cppSourcesZip(type: Zip) {
         into '/imgui/'
     }
 
-    from('imgui/examples') {
+    from('imgui/backends') {
         include 'imgui_impl_glfw.cpp', 'imgui_impl_opengl3.cpp', 'imgui_impl_dx11.cpp', 'imgui_impl_metal.mm'
         into '/imgui/'
     }
@@ -105,7 +105,7 @@ task cppHeadersZip(type: Zip) {
         into '/'
     }
 
-    from('imgui/examples') {
+    from('imgui/backends') {
         include 'imgui_impl_glfw.h', 'imgui_impl_opengl3.h', 'imgui_impl_dx11.h', 'imgui_impl_metal.h'
         into '/'
     }
