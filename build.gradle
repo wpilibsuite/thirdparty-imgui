@@ -8,7 +8,7 @@ plugins {
     id 'c'
     id 'cpp'
     id 'visual-studio'
-    id 'edu.wpi.first.NativeUtils' version '2022.3.1'
+    id 'edu.wpi.first.NativeUtils' version '2023.0.2'
 }
 
 if (OperatingSystem.current().isMacOsX()) {
