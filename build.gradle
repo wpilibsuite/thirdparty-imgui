@@ -8,7 +8,7 @@ plugins {
     id 'c'
     id 'cpp'
     id 'visual-studio'
-    id 'edu.wpi.first.NativeUtils' version '2023.0.2'
+    id 'edu.wpi.first.NativeUtils' version '2023.0.3'
 }
 
 if (OperatingSystem.current().isMacOsX()) {
@@ -39,6 +39,13 @@ ext.addTaskToCopyAllOutputs = { task ->
 }
 
 nativeUtils.platformConfigs.named('osxx86-64') {
+    it.objcCompiler.args.remove('-fobjc-weak')
+    it.objcCompiler.args.remove('-fobjc-arc')
+    it.objcppCompiler.args.remove('-fobjc-weak')
+    it.objcppCompiler.args.remove('-fobjc-arc')
+}
+
+nativeUtils.platformConfigs.named('osxarm64') {
     it.objcCompiler.args.remove('-fobjc-weak')
     it.objcCompiler.args.remove('-fobjc-arc')
     it.objcppCompiler.args.remove('-fobjc-weak')
@@ -204,5 +211,5 @@ model {
 apply from: 'publish.gradle'
 
 wrapper {
-    gradleVersion = '7.1.1'
+    gradleVersion = '7.5-rc-2'
 }

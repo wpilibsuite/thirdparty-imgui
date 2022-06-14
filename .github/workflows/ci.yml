@@ -70,7 +70,7 @@ jobs:
       - name: Build fonts
         run: ./build_fonts.sh
       - name: Build
-        run: ./gradlew build
+        run: ./gradlew build -Pbuildalldesktop
       - uses: actions/upload-artifact@v2
         with:
           name: macOS
