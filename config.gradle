@@ -3,9 +3,9 @@ import org.gradle.internal.os.OperatingSystem
 nativeUtils.addWpiNativeUtils()
 
 // these are disabled for now (needs X11 and GL headers)
-// nativeUtils.withRoboRIO()
-// nativeUtils.withRaspbian()
-// nativeUtils.withBionic()
+// nativeUtils.withCrossRoboRIO()
+// nativeUtils.withCrossLinuxArm32()
+// nativeUtils.withCrossLinuxArm64()
 
 
 nativeUtils.wpi.addWarnings()
