@@ -89,7 +89,7 @@ model {
                 c {
                     source {
                         srcDirs 'build/gl3w/src', 'glfw/src'
-                        include 'gl3w.c', 'context.c', 'init.c', 'input.c', 'monitor.c', 'vulkan.c', 'window.c', 'egl_context.c', 'osmesa_context.c'
+                        include 'gl3w.c', 'context.c', 'init.c', 'input.c', 'monitor.c', 'platform.c', 'vulkan.c', 'window.c', 'egl_context.c', 'osmesa_context.c'
                     }
                     exportedHeaders {
                         srcDirs 'build/gl3w/include', 'glfw/include'
@@ -129,6 +129,7 @@ model {
                                 includes = [
                                     'win32_init.c',
                                     'win32_joystick.c',
+                                    'win32_module.c',
                                     'win32_monitor.c',
                                     'win32_time.c',
                                     'win32_thread.c',
@@ -160,6 +161,7 @@ model {
                                 srcDirs 'glfw/src'
                                 includes = [
                                     'cocoa_time.c',
+                                    'posix_module.c',
                                     'posix_thread.c',
                                 ]
                             }
@@ -189,6 +191,7 @@ model {
                                     'x11_monitor.c',
                                     'x11_window.c',
                                     'xkb_unicode.c',
+                                    'posix_module.c',
                                     'posix_time.c',
                                     'posix_thread.c',
                                     'glx_context.c',
