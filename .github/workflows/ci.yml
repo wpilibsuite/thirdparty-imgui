@@ -33,6 +33,8 @@ jobs:
         include:
           - artifact-name: Win64
             architecture: x64
+          - artifact-name: Win32
+            architecture: x86
     name: "Build - ${{ matrix.artifact-name }}"
     runs-on: windows-2019
     steps:
