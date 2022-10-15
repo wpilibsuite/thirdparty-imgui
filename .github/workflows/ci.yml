@@ -6,17 +6,13 @@ jobs:
   build-linux:
     name: "Build - Linux"
     runs-on: ubuntu-latest
-    container: wpilib/ubuntu-base:20.04
+    container: wpilib/ubuntu-base:22.04
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: true
       - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y libx11-dev libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev mesa-common-dev
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
+        run: sudo apt-get update && sudo apt-get install -y libx11-dev libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev mesa-common-dev python-is-python3
       - name: Build fonts
         run: ./build_fonts.sh
       - name: Build
@@ -33,6 +29,8 @@ jobs:
         include:
           - artifact-name: Win64
             architecture: x64
+          - artifact-name: Win32
+            architecture: x86
     name: "Build - ${{ matrix.artifact-name }}"
     runs-on: windows-2019
     steps:
