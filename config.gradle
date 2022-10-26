@@ -4,8 +4,8 @@ nativeUtils.addWpiNativeUtils()
 
 // these are disabled for now (needs X11 and GL headers)
 // nativeUtils.withCrossRoboRIO()
-// nativeUtils.withCrossLinuxArm32()
-// nativeUtils.withCrossLinuxArm64()
+nativeUtils.withCrossLinuxArm32()
+nativeUtils.withCrossLinuxArm64()
 
 
 nativeUtils.wpi.addWarnings()
