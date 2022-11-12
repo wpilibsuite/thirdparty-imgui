@@ -125,6 +125,11 @@ task cppHeadersZip(type: Zip) {
         into '/'
     }
 
+    from('IconFontCppHeaders') {
+        include 'IconsFontAwesome6.h'
+        into '/'
+    }
+
     from('build/gl3w/include') {
         into '/'
     }
