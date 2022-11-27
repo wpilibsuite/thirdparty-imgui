@@ -6,6 +6,7 @@ bin/
 .gradle/
 .vscode/
 *.sw?
-fonts/*.inc
+fonts
+fonts.zip
 imgui_font_bin2c*
 *.obj

@@ -13,8 +13,8 @@ jobs:
           submodules: true
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y libx11-dev libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev mesa-common-dev python-is-python3
-      - name: Build fonts
-        run: ./build_fonts.sh
+      - name: Get fonts
+        run: ./get_fonts.sh
       - name: Build
         run: ./gradlew build
       - uses: actions/upload-artifact@v2
@@ -32,8 +32,8 @@ jobs:
           submodules: true
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y python-is-python3
-      - name: Build fonts
-        run: ./build_fonts.sh
+      - name: Get fonts
+        run: ./get_fonts.sh
       - name: Build
         run: ./gradlew build -Ponlylinuxarm64
       - uses: actions/upload-artifact@v2
@@ -51,8 +51,8 @@ jobs:
           submodules: true
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y python-is-python3
-      - name: Build fonts
-        run: ./build_fonts.sh
+      - name: Get fonts
+        run: ./get_fonts.sh
       - name: Build
         run: ./gradlew build -Ponlylinuxarm32
       - uses: actions/upload-artifact@v2
@@ -79,11 +79,8 @@ jobs:
         with:
           java-version: 11
           architecture: ${{ matrix.architecture }}
-      - name: Build fonts
-        shell: cmd
-        run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{ matrix.architecture }}
-          .\build_fonts.bat
+      - name: Get fonts
+        run: ./get_fonts.sh
       - name: Build with Gradle
         run: ./gradlew build
       - uses: actions/upload-artifact@v2
@@ -103,8 +100,8 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: Build fonts
-        run: ./build_fonts.sh
+      - name: Get fonts
+        run: ./get_fonts.sh
       - name: Build
         run: ./gradlew build
       - uses: actions/upload-artifact@v2
