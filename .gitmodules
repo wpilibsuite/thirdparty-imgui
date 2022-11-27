@@ -7,18 +7,9 @@
 [submodule "gl3w"]
 	path = gl3w
 	url = https://github.com/skaslev/gl3w.git
-[submodule "proggyfonts"]
-	path = proggyfonts
-	url = https://github.com/bluescan/proggyfonts.git
 [submodule "stb"]
 	path = stb
 	url = https://github.com/nothings/stb.git
 [submodule "implot"]
 	path = implot
 	url = https://github.com/epezent/implot.git
-[submodule "IconFontCppHeaders"]
-	path = IconFontCppHeaders
-	url = https://github.com/juliettef/IconFontCppHeaders.git
-[submodule "Font-Awesome"]
-	path = Font-Awesome
-	url = https://github.com/FortAwesome/Font-Awesome.git

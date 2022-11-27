@@ -14,7 +14,7 @@ publishing {
     }
 }
 
-def releaseNumber = 9
+def releaseNumber = 10
 
 def pubVersion = "1.88-$releaseNumber"
 
@@ -75,7 +75,7 @@ task cppSourcesZip(type: Zip) {
         into '/implot/'
     }
 
-    from('fonts') {
+    from('fonts/src') {
         include '*.cpp'
         into '/imgui/'
     }
@@ -120,13 +120,8 @@ task cppHeadersZip(type: Zip) {
         into '/'
     }
 
-    from('fonts') {
+    from('fonts/include') {
         include '*.h'
-        into '/'
-    }
-
-    from('IconFontCppHeaders') {
-        include 'IconsFontAwesome6.h'
         into '/'
     }
 
