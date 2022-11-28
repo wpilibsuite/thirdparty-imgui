@@ -80,7 +80,8 @@ jobs:
           java-version: 11
           architecture: ${{ matrix.architecture }}
       - name: Get fonts
-        run: ./get_fonts.sh
+        run: ./get_fonts.ps1
+        shell: pwsh
       - name: Build with Gradle
         run: ./gradlew build
       - uses: actions/upload-artifact@v2
