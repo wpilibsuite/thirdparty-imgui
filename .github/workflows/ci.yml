@@ -81,6 +81,7 @@ jobs:
           architecture: ${{ matrix.architecture }}
       - name: Get fonts
         run: ./get_fonts.sh
+        shell: bash
       - name: Build with Gradle
         run: ./gradlew build
       - uses: actions/upload-artifact@v2
