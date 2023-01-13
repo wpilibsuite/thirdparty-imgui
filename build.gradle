@@ -104,16 +104,19 @@ model {
                 }
                 if (it.targetPlatform.operatingSystem.isWindows()) {
                     it.cCompiler.define '_GLFW_WIN32'
-                    linker.args << 'kernel32.lib' << 'Gdi32.lib' << 'User32.lib' << 'Shell32.lib' << 'd3d11.lib' << 'd3dcompiler.lib'
+                    linker.args << 'kernel32.lib' << 'Gdi32.lib' << 'User32.lib' << 'Shell32.lib' << 'd3d11.lib' << 'd3d12.lib' << 'd3dcompiler.lib'
                     it.sources {
                         imguiWindowsCpp(CppSourceSet) {
                             source {
                                 srcDirs 'imgui'
-                                include 'backends/imgui_impl_dx11.cpp'
+                                includes = [
+                                    'backends/imgui_impl_dx11.cpp',
+                                    'backends/imgui_impl_dx12.cpp',
+                                ]
                             }
                             exportedHeaders {
                                 srcDirs 'imgui'
-                                include '*.h', 'backends/imgui_impl_dx11.h'
+                                include '*.h', 'backends/imgui_impl_dx11.h', 'backends/imgui_impl_dx12.h'
                             }
                         }
                         glfw3WindowsC(CSourceSet) {
