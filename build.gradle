@@ -8,7 +8,7 @@ plugins {
     id 'c'
     id 'cpp'
     id 'visual-studio'
-    id 'edu.wpi.first.NativeUtils' version '2023.7.0'
+    id 'edu.wpi.first.NativeUtils' version '2024.0.0'
 }
 
 if (OperatingSystem.current().isMacOsX()) {
@@ -34,8 +34,8 @@ build.dependsOn copyAllOutputs
 
 ext.addTaskToCopyAllOutputs = { task ->
     copyAllOutputs.dependsOn task
-    copyAllOutputs.inputs.file task.archivePath
-    copyAllOutputs.from task.archivePath
+    copyAllOutputs.inputs.file task.archiveFile
+    copyAllOutputs.from task.archiveFile
 }
 
 nativeUtils.platformConfigs.named('osxuniversal') {
@@ -208,5 +208,5 @@ model {
 apply from: 'publish.gradle'
 
 wrapper {
-    gradleVersion = '7.5.1'
+    gradleVersion = '8.1'
 }

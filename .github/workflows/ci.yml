@@ -83,7 +83,7 @@ jobs:
         run: ./get_fonts.ps1
         shell: pwsh
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew build -Pbuildwinarm64
       - uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.artifact-name }}
