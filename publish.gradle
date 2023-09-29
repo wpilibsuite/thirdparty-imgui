@@ -61,7 +61,7 @@ task cppSourcesZip(type: Zip) {
     }
 
     from('imgui/backends') {
-        include 'imgui_impl_glfw.cpp', 'imgui_impl_opengl3.cpp', 'imgui_impl_opengl2.cpp', 'imgui_impl_dx11.cpp', 'imgui_impl_metal.mm'
+        include 'imgui_impl_glfw.cpp', 'imgui_impl_opengl3.cpp', 'imgui_impl_opengl2.cpp', 'imgui_impl_dx11.cpp', 'imgui_impl_dx12.cpp', 'imgui_impl_metal.mm'
         into '/imgui/'
     }
 
@@ -106,7 +106,7 @@ task cppHeadersZip(type: Zip) {
     }
 
     from('imgui/backends') {
-        include 'imgui_impl_glfw.h', 'imgui_impl_opengl3.h', 'imgui_impl_opengl2.h', 'imgui_impl_dx11.h', 'imgui_impl_metal.h'
+        include 'imgui_impl_glfw.h', 'imgui_impl_opengl3.h', 'imgui_impl_opengl2.h', 'imgui_impl_dx11.h', 'imgui_impl_dx12.h', 'imgui_impl_metal.h'
         into '/'
     }
 
